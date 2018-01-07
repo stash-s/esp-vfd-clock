@@ -5,7 +5,8 @@
 #include <os_type.h>
 #include <driver/uart.h>
 #include <mem.h>
-#include "driver/dupa-spi.h"
+//#include <Blynk.h>
+#include "driver/mp_spi.h"
 //#include "driver/spi.h"
 
 #include "hw_timer.h"
@@ -87,21 +88,16 @@ void blink_pin (const int pin) {
 void test_timerfunc()
 {
     spi_tx16 (HSPI, 0x5f05);
-    //spi_mast_byte_write (SPI, 0x05);
-    //spi_mast_byte_write (SPI, 0x5f);
 
     static uint16 j = 0;
     j++;
     if( (WDEV_NOW() - tick_now2) >= 1000000 ) {
          tick_now2 = WDEV_NOW();
          system_os_post (USER_TASK_PRIO_0, 0, j);
-         //os_printf("b%u:%d\n",idx++,j);
          j = 0;
     }
 
   //Do blinky stuff
-    //blink_pin (pin);
-    //blink_pin (4);
     if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & (1 << pin))
     {
       // set gpio low
@@ -112,9 +108,6 @@ void test_timerfunc()
       // set gpio high
       gpio_output_set((1 << pin), 0, 0, 0);
     }
-
-    // spi_mast_byte_write(SPI, 0xff);
-    // spi_mast_byte_write(SPI, 0xa5);
 
 }
 
@@ -142,48 +135,14 @@ void task_init (void)
         printer_queue, PRINTER_QUEUE_LEN);
 }
 
-//os_task_t printer_task;
-
-void spi_initialize()
-{
-    //Initialze Pins on ESP8266
-//     PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, FUNC_HSPIQ_MISO);
-//     PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDO_U, FUNC_HSPI_CS0);
-//     PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTCK_U, FUNC_HSPID_MOSI);
-//     PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTMS_U, FUNC_HSPI_CLK);
-//
-//     SpiAttr pAttr;   //Set as Master/Sub mode 0 and speed 10MHz
-//     pAttr.mode = SpiMode_Master;
-//     pAttr.subMode = SpiSubMode_0;
-//     pAttr.speed = SpiSpeed_10MHz;
-//     pAttr.bitOrder = SpiBitOrder_MSBFirst;
-//     SPIInit(SpiNum_HSPI, &pAttr);
-}
-
 void ICACHE_FLASH_ATTR user_init()
-//void user_init()
 {
   //system_timer_reinit ();
   // init gpio sussytem
   gpio_init();
 
-  //PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDI_U, 2);//configure io to spi mode
-  //PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTCK_U, 2);//configure io to spi mode
-  //PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTMS_U, 2);//configure io to spi mode
-  //PIN_FUNC_SELECT(PERIPHS_IO_MUX_MTDO_U, 2);//configure io to spi mode
-
-  // PIN_FUNC_SELECT(PERIPHS_IO_MUX_SD_CLK_U, 1);//configure io to spi mode
-  // PIN_FUNC_SELECT(PERIPHS_IO_MUX_SD_CMD_U, 1);//configure io to spi mode
-  // PIN_FUNC_SELECT(PERIPHS_IO_MUX_SD_DATA0_U, 1);//configure io to spi mode
-  // PIN_FUNC_SELECT(PERIPHS_IO_MUX_SD_DATA1_U, 1);//configure io to spi mode
-  //
-  // spi_master_init(SPI);
-  // spi_set_clock_div (SPI, 8);
-  // //spi_initialize();
-
   spi_init (HSPI);
   spi_clock (HSPI, 5, 2);
-  //spi_master_init (SPI);
 
   uart_init(BIT_RATE_115200, BIT_RATE_115200);
   os_printf("SDK version:%s\n", system_get_sdk_version());

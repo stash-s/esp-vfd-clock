@@ -31,6 +31,8 @@
 *.out
 *.app
 
+# other files
+.travis.yml
 .pioenvs/
 .pioenvs
 .piolibdeps
