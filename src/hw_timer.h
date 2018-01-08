@@ -1,8 +1,12 @@
 #ifndef __HW_TIMER_H__
 #define __HW_TIMER_H__
 
-//#include <osapi.h>
 #include <os_type.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #define US_TO_RTC_TIMER_TICKS(t)          \
     ((t) ?                                   \
@@ -34,5 +38,9 @@ typedef enum {
 void ICACHE_FLASH_ATTR hw_timer_init (FRC1_TIMER_SOURCE_TYPE source_type, u8 req);
 void hw_timer_set_func (void (* user_hw_timer_cb_set)(void) );
 void hw_timer_arm (uint32 val);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __HW_TIMER_H__

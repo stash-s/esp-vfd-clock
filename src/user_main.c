@@ -5,15 +5,10 @@
 #include <os_type.h>
 #include <driver/uart.h>
 #include <mem.h>
-#include "driver/mp_spi.h"
 
-#include "hw_timer.h"
+#include "clock_display.h"
+#include "clock_timer.h"
 
-static const int pin = 4;
-
-#define REG_READ(_r) (*(volatile uint32 *)(_r))
-#define WDEV_NOW() REG_READ(0x3ff20c00)
-uint32 tick_now2 = 0;
 
 /******************************************************************************
  * FunctionName : user_rf_cal_sector_set
@@ -68,70 +63,19 @@ user_rf_cal_sector_set(void)
     return rf_cal_sec;
 }
 
-inline
-void blink_pin (const int pin) {
-    if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & (1 << pin))
-    {
-      // set gpio low
-      gpio_output_set(0, (1 << pin), 0, 0);
-    }
-    else
-    {
-      // set gpio high
-      gpio_output_set((1 << pin), 0, 0, 0);
-    }
-}
-
-
-void test_timerfunc()
-{
-    spi_tx16 (HSPI, 0x5f05);
-
-    static uint16 j = 0;
-    j++;
-    if( (WDEV_NOW() - tick_now2) >= 1000000 ) {
-         tick_now2 = WDEV_NOW();
-         system_os_post (USER_TASK_PRIO_0, 0, j);
-         j = 0;
-    }
-
-  //Do blinky stuff
-    if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & (1 << pin))
-    {
-      // set gpio low
-      gpio_output_set(0, (1 << pin), 0, 0);
-    }
-    else
-    {
-      // set gpio high
-      gpio_output_set((1 << pin), 0, 0, 0);
-    }
-
-}
-
-void some_timerfunc(void *arg)
-{
-    test_timerfunc();
-}
-
-#define PRINTER_QUEUE_LEN 4
-
-os_event_t * printer_queue;
-
-void printer_task (os_event_t * ev) {
-    static u32 idx = 1;
-    int j = (int) ev->par;
-    os_printf("b%u:%d\n",idx++,j);
-}
-
-void task_init (void)
-{
-    printer_queue = (os_event_t *) os_malloc (sizeof (os_event_t)
-                                                * PRINTER_QUEUE_LEN);
-
-    system_os_task (printer_task, USER_TASK_PRIO_0,
-        printer_queue, PRINTER_QUEUE_LEN);
-}
+// inline
+// void blink_pin (const int pin) {
+//     if (GPIO_REG_READ(GPIO_OUT_ADDRESS) & (1 << pin))
+//     {
+//       // set gpio low
+//       gpio_output_set(0, (1 << pin), 0, 0);
+//     }
+//     else
+//     {
+//       // set gpio high
+//       gpio_output_set((1 << pin), 0, 0, 0);
+//     }
+// }
 
 void ICACHE_FLASH_ATTR user_init()
 {
@@ -139,14 +83,15 @@ void ICACHE_FLASH_ATTR user_init()
   // init gpio sussytem
   gpio_init();
 
-  spi_init (HSPI);
-  spi_clock (HSPI, 5, 2);
-
   uart_init(BIT_RATE_115200, BIT_RATE_115200);
   os_printf("SDK version:%s\n", system_get_sdk_version());
 
+  init_clock_display ();
+  static clock_t clock;
+  clock_timer_init (&clock, clock_display_digit, DISPLAY_DIGIT_MAX);
+
   // Disable WiFi
-  wifi_set_opmode(NULL_MODE);
+  //wifi_set_opmode(NULL_MODE);
 
   // configure UART TXD to be GPIO1, set as output
   //PIN_FUNC_SELECT(PERIPHS_IO_MUX_U0TXD_U, FUNC_GPIO1);
@@ -154,10 +99,4 @@ void ICACHE_FLASH_ATTR user_init()
   //PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO5_U, FUNC_GPIO5);
   //gpio_output_set(0, 0, (1 << pin), 0);
   gpio_output_set(0, 0, (1 << 4), 0);
-
-  task_init ();
-
-  hw_timer_init (FRC1_SOURCE, 1);
-  hw_timer_set_func (test_timerfunc);
-  hw_timer_arm (50);
 }
