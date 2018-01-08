@@ -5,9 +5,7 @@
 #include <os_type.h>
 #include <driver/uart.h>
 #include <mem.h>
-//#include <Blynk.h>
 #include "driver/mp_spi.h"
-//#include "driver/spi.h"
 
 #include "hw_timer.h"
 
