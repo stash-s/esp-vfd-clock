@@ -8,6 +8,7 @@
 
 #include "clock_display.h"
 #include "clock_timer.h"
+#include "clock_update.h"
 
 
 /******************************************************************************
@@ -87,16 +88,10 @@ void ICACHE_FLASH_ATTR user_init()
   os_printf("SDK version:%s\n", system_get_sdk_version());
 
   init_clock_display ();
-  static clock_t clock;
-  clock_timer_init (&clock, clock_display_digit, DISPLAY_DIGIT_MAX);
 
-  // Disable WiFi
-  //wifi_set_opmode(NULL_MODE);
+  clock_timer_init (clock_display_digit, DISPLAY_DIGIT_MAX);
 
-  // configure UART TXD to be GPIO1, set as output
-  //PIN_FUNC_SELECT(PERIPHS_IO_MUX_U0TXD_U, FUNC_GPIO1);
-  PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO4_U, FUNC_GPIO4);
-  //PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO5_U, FUNC_GPIO5);
-  //gpio_output_set(0, 0, (1 << pin), 0);
-  gpio_output_set(0, 0, (1 << 4), 0);
+  clock_display_enable ();
+
+  clock_update_init ();
 }
