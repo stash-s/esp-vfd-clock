@@ -5,11 +5,13 @@
 #include <os_type.h>
 #include <driver/uart.h>
 #include <mem.h>
+#include <mqtt.h>
 
 #include "clock_display.h"
 #include "clock_timer.h"
 #include "clock_update.h"
 
+MQTT_Client mqttClient;
 
 /******************************************************************************
  * FunctionName : user_rf_cal_sector_set

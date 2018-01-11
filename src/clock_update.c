@@ -73,19 +73,34 @@ void ICACHE_FLASH_ATTR user_check_sntp_stamp(void *arg)
     } else {
         os_timer_disarm(&sntp_timer);
         os_printf("sntp: %d, %s \n",current_stamp,
-                sntp_get_real_time(current_stamp));
+                    sntp_get_real_time(current_stamp));
 
         time_t stamp = current_stamp;
         struct tm * timeinfo = localtime (&stamp);
 
         os_memcpy (&(my_clock_timer->tm), timeinfo, sizeof(struct tm));
-
         os_timer_arm(&sntp_timer, 3600000, 0);
     }
 }
 
+
 void ICACHE_FLASH_ATTR clock_update_start_sntp () {
-    sntp_setservername (0, (char *) "91.233.70.230");
+
+    int ntp_index=0;
+
+    sntp_setservername (ntp_index++, (char *) "pool.ntp.org");
+
+    struct ip_info info;
+    if (wifi_get_ip_info(0, &info)) {
+        char addr_buffer[16];
+        os_sprintf (addr_buffer, IPSTR, IP2STR(&(info.gw)));
+        //os_printf ("got gateway ip: %s\n", addr_buffer);
+        //sntp_setserver (ntp_index++, &(info.gw));
+        sntp_setservername (ntp_index++, addr_buffer);
+    } else {
+        os_printf ("error getting ip_info");
+    }
+
     sntp_set_timezone (+1);
     sntp_init();
 
