@@ -13,7 +13,8 @@ typedef struct {
     int        digits_max;
     struct tm  tm;
 
-    os_timer_t timer;
+    int        dot_position;
+    os_timer_t timer
 
 } my_clock_timer_t;
 

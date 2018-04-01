@@ -31,5 +31,7 @@
 
 #define BRIGHTNESS_TOPIC "stash_s/feeds/brightness"
 #define OUTPUT_TOPIC "stash_s/feeds/output-log"
+#define AMBIENT_LIGHT_TOPIC "stash_s/feeds/ambient-light"
+#define SENSOR_VALUE_TOPIC "stash_s/feeds/sensor-value"
 
 #endif // __MQTT_CONFIG_H__

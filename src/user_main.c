@@ -5,13 +5,11 @@
 #include <os_type.h>
 #include <driver/uart.h>
 #include <mem.h>
-#include <mqtt.h>
 
 #include "clock_display.h"
 #include "clock_timer.h"
 #include "clock_update.h"
-
-MQTT_Client mqttClient;
+#include "light_sensor.h"
 
 /******************************************************************************
  * FunctionName : user_rf_cal_sector_set
@@ -80,6 +78,22 @@ user_rf_cal_sector_set(void)
 //     }
 // }
 
+void sys_init_cb () {
+    os_printf("system init callback called\n");
+
+
+    init_clock_display ();
+
+    clock_timer_init (clock_display_digit, DISPLAY_DIGIT_MAX);
+
+    clock_display_enable ();
+
+    clock_update_init ();
+
+    light_sensor_init ();
+}
+
+
 void ICACHE_FLASH_ATTR user_init()
 {
   //system_timer_reinit ();
@@ -89,11 +103,5 @@ void ICACHE_FLASH_ATTR user_init()
   uart_init(BIT_RATE_115200, BIT_RATE_115200);
   os_printf("SDK version:%s\n", system_get_sdk_version());
 
-  init_clock_display ();
-
-  clock_timer_init (clock_display_digit, DISPLAY_DIGIT_MAX);
-
-  clock_display_enable ();
-
-  clock_update_init ();
+  system_init_done_cb (sys_init_cb);
 }
