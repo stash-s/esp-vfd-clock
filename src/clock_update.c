@@ -116,7 +116,7 @@ void ICACHE_FLASH_ATTR clock_update_start_sntp () {
         os_printf ("error getting ip_info");
     }
 
-    sntp_set_timezone (+2);
+    sntp_set_timezone (+1);
     sntp_init();
 
     os_timer_disarm(&sntp_timer);
